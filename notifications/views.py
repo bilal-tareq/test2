@@ -25,7 +25,13 @@ class ForgotPasswordView(APIView):
             print(f"Generating OTP {otp} for {email}")
             
             # Save OTP to database
-            OTPCode.objects.create(email=email, code=otp)
+            try:
+                OTPCode.objects.create(email=email, code=otp)
+            except Exception as e:
+                return Response({
+                    "error": "Database error: table might be missing.",
+                    "details": str(e)
+                }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             
             # Send Email
             try:

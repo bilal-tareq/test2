@@ -1,0 +1,717 @@
+{
+	"info": {
+		"_postman_id": "supercareer-api-collection",
+		"name": "SuperCareer API",
+		"description": "Complete API documentation for the SuperCareer Django backend.\n\nBase URL: http://localhost:8000\n\n## Authentication\nMost endpoints require JWT authentication. After login, use the `access` token in the Authorization header:\n`Bearer <access_token>`\n\nWhen the access token expires, use the `/api/token/refresh/` endpoint with your `refresh` token to get a new access token.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "https://supercareer-backend-1.onrender.com",
+			"type": "string"
+		},
+		{
+			"key": "access_token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "refresh_token",
+			"value": "",
+			"type": "string"
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{access_token}}",
+				"type": "string"
+			}
+		]
+	},
+	"item": [
+		{
+			"name": "🔐 Authentication",
+			"description": "User registration, login, logout, and token management.",
+			"item": [
+				{
+					"name": "Register",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"securepassword123\",\n  \"full_name\": \"John Doe\",\n  \"role\": \"job_seeker\",\n  \"skills\": [\"Python\", \"Django\", \"React\"],\n  \"specialization\": \"Backend Development\",\n  \"experience\": \"3 years\",\n  \"bio\": \"Experienced backend developer\",\n  \"education\": \"BSc Computer Science\",\n  \"hourly_rate\": 25.00\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/register/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "register", ""]
+						},
+						"description": "Register a new user. Returns JWT tokens and user/profile data.\n\n**Auth Required:** No\n\n**Fields:**\n- `email` (required): User's email\n- `password` (required, min 8 chars): User's password\n- `full_name` (optional): Will be split into first/last name\n- `role` (optional, default: 'job_seeker'): User role\n- `skills` (optional): Array of skill names\n- `specialization`, `experience`, `bio`, `education`, `hourly_rate` (optional): Profile data"
+					}
+				},
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (jsonData.tokens) {",
+									"    pm.collectionVariables.set('access_token', jsonData.tokens.access);",
+									"    pm.collectionVariables.set('refresh_token', jsonData.tokens.refresh);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"securepassword123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/login/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "login", ""]
+						},
+						"description": "Login with email and password. Returns JWT tokens, user data, and profile.\n\n**Auth Required:** No\n\n**Note:** This request has a test script that automatically saves the `access_token` and `refresh_token` to collection variables for use in other requests."
+					}
+				},
+				{
+					"name": "Logout",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"refresh\": \"{{refresh_token}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/logout/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "logout", ""]
+						},
+						"description": "Logout by blacklisting the refresh token.\n\n**Auth Required:** Yes (Bearer Token)\n\n**Fields:**\n- `refresh` (required): The refresh token to blacklist"
+					}
+				},
+				{
+					"name": "Refresh Token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (jsonData.access) {",
+									"    pm.collectionVariables.set('access_token', jsonData.access);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"refresh\": \"{{refresh_token}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/token/refresh/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "token", "refresh", ""]
+						},
+						"description": "Get a new access token using a valid refresh token.\n\n**Auth Required:** No\n\n**Note:** This request has a test script that automatically updates the `access_token` collection variable."
+					}
+				},
+				{
+					"name": "Google Login",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id_token\": \"<google_oauth2_id_token>\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/google/login/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "auth", "google", "login", ""]
+						},
+						"description": "Login using a Google OAuth2 ID token. User must already be registered.\n\n**Auth Required:** No\n\n**Fields:**\n- `id_token` (required): Google OAuth2 ID Token"
+					}
+				},
+				{
+					"name": "Google Register",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id_token\": \"<google_oauth2_id_token>\",\n  \"role\": \"job_seeker\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/google/register/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "auth", "google", "register", ""]
+						},
+						"description": "Register a new user using Google OAuth2 ID token.\n\n**Auth Required:** No\n\n**Fields:**\n- `id_token` (required): Google OAuth2 ID Token\n- `role` (required): User role (e.g., 'job_seeker', 'freelancer')"
+					}
+				},
+				{
+					"name": "Change Password",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"old_password\": \"currentpassword123\",\n  \"new_password\": \"newpassword456\",\n  \"confirm_password\": \"newpassword456\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/change-password/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "change-password", ""]
+						},
+						"description": "Change the current user's password.\n\n**Auth Required:** Yes (Bearer Token)\n\n**Fields:**\n- `old_password` (required)\n- `new_password` (required)\n- `confirm_password` (required): Must match new_password"
+					}
+				}
+			]
+		},
+		{
+			"name": "🔑 Password Reset (OTP)",
+			"description": "3-step password reset flow using OTP verification via email.",
+			"item": [
+				{
+					"name": "Step 1: Forgot Password (Send OTP)",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"user@example.com\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/forgot-password/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "forgot-password", ""]
+						},
+						"description": "Initiate password reset by sending a 4-digit OTP to the user's email.\n\n**Auth Required:** No\n\n**Fields:**\n- `email` (required): Registered email address"
+					}
+				},
+				{
+					"name": "Step 2: Verify OTP",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"user@example.com\",\n  \"otp\": \"1234\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/verify-otp/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "verify-otp", ""]
+						},
+						"description": "Verify the OTP code sent to the user's email.\n\n**Auth Required:** No\n\n**Fields:**\n- `email` (required): Same email used in forgot-password\n- `otp` (required): 4-digit OTP code"
+					}
+				},
+				{
+					"name": "Step 3: Reset Password",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"user@example.com\",\n  \"otp\": \"1234\",\n  \"new_password\": \"mynewpassword123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/reset-password/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "reset-password", ""]
+						},
+						"description": "Reset the password after OTP has been verified.\n\n**Auth Required:** No\n\n**Fields:**\n- `email` (required)\n- `otp` (required): The verified OTP\n- `new_password` (required): The new password"
+					}
+				}
+			]
+		},
+		{
+			"name": "👤 Profile",
+			"description": "View and update user profile information.",
+			"item": [
+				{
+					"name": "Get Profile",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{base_url}}/api/profile/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "profile", ""]
+						},
+						"description": "Get the current authenticated user's profile.\n\n**Auth Required:** Yes (Bearer Token)\n\n**Response includes:** bio, specialization, experience, skills, hourly_rate, education, preferences, first_name, last_name, email"
+					}
+				},
+				{
+					"name": "Update Profile",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"first_name\": \"John\",\n  \"last_name\": \"Doe\",\n  \"bio\": \"Senior Backend Developer with 5+ years experience\",\n  \"specialization\": \"Full Stack Development\",\n  \"experience\": \"5 years\",\n  \"skills\": [\"Python\", \"Django\", \"React\", \"PostgreSQL\"],\n  \"hourly_rate\": 35.00,\n  \"education\": \"MSc Computer Science\",\n  \"preferences\": \"Remote work preferred\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/profile/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "profile", ""]
+						},
+						"description": "Update the current user's profile. Uses PATCH, so only include fields you want to update.\n\n**Auth Required:** Yes (Bearer Token)\n\n**Updatable Fields:**\n- `first_name`, `last_name`, `email`\n- `bio`, `specialization`, `experience`\n- `skills` (array of skill name strings)\n- `hourly_rate`, `education`, `preferences`"
+					}
+				},
+				{
+					"name": "Dashboard Stats",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{base_url}}/api/accounts/dashboard-stats/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "accounts", "dashboard-stats", ""]
+						},
+						"description": "Get dashboard statistics for the authenticated user.\n\n**Auth Required:** Yes (Bearer Token)\n\n**Response:**\n- `matches_today`: Number of AI matches found today\n- `active_proposals`: Number of proposals with 'sent' status\n- `avg_match_score`: Average match score percentage\n- `profile_views`: Number of profile views\n- `user_name`: User's display name"
+					}
+				}
+			]
+		},
+		{
+			"name": "💼 Opportunities",
+			"description": "Browse jobs, projects, and create proposals.",
+			"item": [
+				{
+					"name": "List Jobs",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{base_url}}/api/opportunities/jobs/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "opportunities", "jobs", ""]
+						},
+						"description": "Get a list of all available job opportunities.\n\n**Auth Required:** Yes (Bearer Token)"
+					}
+				},
+				{
+					"name": "List Projects",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{base_url}}/api/opportunities/projects/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "opportunities", "projects", ""]
+						},
+						"description": "Get a list of all freelance project opportunities (scraped from Mostaql).\n\n**Auth Required:** Yes (Bearer Token)"
+					}
+				},
+				{
+					"name": "Refresh Projects (Scrape)",
+					"request": {
+						"method": "POST",
+						"url": {
+							"raw": "{{base_url}}/api/opportunities/projects/refresh/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "opportunities", "projects", "refresh", ""]
+						},
+						"description": "Trigger a fresh scraping of Mostaql for new freelance projects and import them into the database.\n\n**Auth Required:** Yes (Bearer Token)\n\n**Response:**\n- `message`: Success/error message\n- `imported_count`: Number of new projects imported"
+					}
+				},
+				{
+					"name": "Create Proposal",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"project\": 1,\n  \"content\": \"I am interested in this project. Here is my proposal...\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/opportunities/proposals/create/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "opportunities", "proposals", "create", ""]
+						},
+						"description": "Create a new proposal for a job or project.\n\n**Auth Required:** Yes (Bearer Token)\n\n**Fields:**\n- `job` (optional): Job ID to apply to\n- `project` (optional): Project ID to apply to\n- `content` (required): Proposal text. Use `\"AI_GEN\"` to auto-generate content using AI.\n\n**Note:** Provide either `job` or `project`, not both."
+					}
+				}
+			]
+		},
+		{
+			"name": "🤖 AI Matching",
+			"description": "AI-powered matching between user profile and available opportunities.",
+			"item": [
+				{
+					"name": "Get AI Matches",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{base_url}}/api/matching/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "matching", ""]
+						},
+						"description": "Get AI-matched opportunities based on the user's profile (bio & skills). The system uses sentence-transformers to calculate similarity scores between the user profile and all available jobs/projects.\n\n**Auth Required:** Yes (Bearer Token)\n\n**Response:** Array of match results sorted by match_score (highest first).\n\n**Note:** This endpoint triggers a live recalculation of scores — it may take a few seconds."
+					}
+				}
+			]
+		},
+		{
+			"name": "📄 Documents",
+			"description": "CV management and proposal history.",
+			"item": [
+				{
+					"name": "Create CV",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"My Professional CV\",\n  \"content\": \"Full CV content here...\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/documents/cv/create/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "documents", "cv", "create", ""]
+						},
+						"description": "Create/upload a new CV document.\n\n**Auth Required:** Yes (Bearer Token)"
+					}
+				},
+				{
+					"name": "Proposal History",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{base_url}}/api/documents/proposals/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "documents", "proposals", ""]
+						},
+						"description": "Get a list of all proposals submitted by the authenticated user, ordered by newest first.\n\n**Auth Required:** Yes (Bearer Token)"
+					}
+				},
+				{
+					"name": "Proposal Detail",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{base_url}}/api/documents/proposals/1/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "documents", "proposals", "1", ""]
+						},
+						"description": "Get, update, or delete a specific proposal by its ID.\n\n**Auth Required:** Yes (Bearer Token)\n\n**Supported Methods:** GET, PUT, PATCH, DELETE\n\nReplace `1` in the URL with the actual proposal ID."
+					}
+				}
+			]
+		},
+		{
+			"name": "🔔 Notifications",
+			"description": "User notification management.",
+			"item": [
+				{
+					"name": "List Notifications",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{base_url}}/api/notifications/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "notifications", ""]
+						},
+						"description": "Get all notifications for the authenticated user, ordered by newest first.\n\n**Auth Required:** Yes (Bearer Token)"
+					}
+				},
+				{
+					"name": "Mark Notification as Read",
+					"request": {
+						"method": "POST",
+						"url": {
+							"raw": "{{base_url}}/api/notifications/1/read/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "notifications", "1", "read", ""]
+						},
+						"description": "Mark a specific notification as read.\n\n**Auth Required:** Yes (Bearer Token)\n\nReplace `1` in the URL with the actual notification ID."
+					}
+				}
+			]
+		},
+		{
+			"name": "🛠️ Administration (Admin Only)",
+			"description": "Admin-only endpoints for managing users, viewing stats, and monitoring scraping activity.\n\n**Note:** All endpoints in this folder require the user to be a Django staff/admin user (IsAdminUser permission).",
+			"item": [
+				{
+					"name": "Admin Stats",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{base_url}}/api/admin-tools/stats/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "admin-tools", "stats", ""]
+						},
+						"description": "Get global application statistics.\n\n**Auth Required:** Yes (Admin Bearer Token)\n\n**Response:**\n- `total_users`: Total registered users\n- `total_jobs`: Total job listings\n- `total_projects`: Total freelance projects\n- `active_users`: Users with active accounts\n- `blocked_users`: Users who have been blocked"
+					}
+				},
+				{
+					"name": "Scraping Logs",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{base_url}}/api/admin-tools/scraping-logs/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "admin-tools", "scraping-logs", ""]
+						},
+						"description": "View logs from background scraping operations.\n\n**Auth Required:** Yes (Admin Bearer Token)"
+					}
+				},
+				{
+					"name": "Admin Activities",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{base_url}}/api/admin-tools/activities/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "admin-tools", "activities", ""]
+						},
+						"description": "View admin activity logs (actions taken by admins).\n\n**Auth Required:** Yes (Admin Bearer Token)"
+					}
+				},
+				{
+					"name": "List All Users",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{base_url}}/api/admin-tools/users/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "admin-tools", "users", ""]
+						},
+						"description": "Get a list of all registered users, ordered by newest first.\n\n**Auth Required:** Yes (Admin Bearer Token)"
+					}
+				},
+				{
+					"name": "Toggle Block/Unblock User",
+					"request": {
+						"method": "POST",
+						"url": {
+							"raw": "{{base_url}}/api/admin-tools/users/1/toggle-block/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "admin-tools", "users", "1", "toggle-block", ""]
+						},
+						"description": "Toggle the blocked/active status of a specific user.\n\n**Auth Required:** Yes (Admin Bearer Token)\n\nReplace `1` in the URL with the actual user ID.\n\n**Response:**\n- `status`: Confirmation message\n- `is_active`: New active status of the user"
+					}
+				}
+			]
+		},
+		{
+			"name": "📚 API Documentation",
+			"description": "Auto-generated API documentation endpoints.",
+			"item": [
+				{
+					"name": "Swagger UI",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"url": {
+							"raw": "{{base_url}}/api/docs/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "docs", ""]
+						},
+						"description": "Interactive Swagger UI documentation. Open this URL in your browser to explore the API visually.\n\n**Auth Required:** No"
+					}
+				},
+				{
+					"name": "ReDoc",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"url": {
+							"raw": "{{base_url}}/api/redoc/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "redoc", ""]
+						},
+						"description": "Alternative API documentation using ReDoc format. Open in browser.\n\n**Auth Required:** No"
+					}
+				},
+				{
+					"name": "OpenAPI Schema (JSON)",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"url": {
+							"raw": "{{base_url}}/api/schema/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "schema", ""]
+						},
+						"description": "Raw OpenAPI 3.0 schema in YAML format. Can be imported into other API tools.\n\n**Auth Required:** No"
+					}
+				}
+			]
+		}
+	]
+}

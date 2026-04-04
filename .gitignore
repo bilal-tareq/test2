@@ -1,0 +1,47 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+*.egg
+dist/
+build/
+.eggs/
+
+# Environment
+.env
+.venv/
+venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+
+# Database
+db.sqlite3
+
+# AI Model (too large)
+my_local_model/
+
+# Logs
+*.log
+gemini.log
+
+# Docker
+log_dump.txt
+
+# Test files
+test_results.txt
+results_utf8.txt
+test_endpoints.py
+test_import.py
+debug_import.py
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Matching AI app (separate project)
+matching-ai-app-main/

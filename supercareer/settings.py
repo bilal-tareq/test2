@@ -34,7 +34,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-%4c9^7&gt!=sf=u5z==9_
 GOOGLE_CLIENT_ID = os.environ.get('GOOGLE_CLIENT_ID')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
 ALLOWED_HOSTS = ['*']
 
@@ -229,7 +229,7 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'bilaltarek2005@gmail.com'
-EMAIL_HOST_PASSWORD = 'sznp foio icdk yuey'
+EMAIL_HOST_PASSWORD = 'fppm kixo ayyb skim'
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 # Use standard Django SMTP backend (works on Linux/Render)

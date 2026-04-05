@@ -16,7 +16,7 @@ class VerifyOTPSerializer(serializers.Serializer):
 class ResetPasswordSerializer(serializers.Serializer):
     email = serializers.EmailField()
     new_password = serializers.CharField(min_length=8)
-    confirm_new_password = serializers.CharField(min_length=8, required=False)
+    confirm_new_password = serializers.CharField(min_length=8)
     otp = serializers.CharField(max_length=6)
 
     def validate(self, data):

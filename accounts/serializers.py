@@ -45,6 +45,16 @@ class RegisterSerializer(serializers.ModelSerializer):
     education = serializers.CharField(required=False, allow_blank=True)
     preferences = serializers.CharField(required=False, allow_blank=True)
 
+    def validate_username(self, value):
+        if value and User.objects.filter(username=value).exists():
+            raise serializers.ValidationError("This username is already taken.")
+        return value
+
+    def validate_email(self, value):
+        if User.objects.filter(email=value).exists():
+            raise serializers.ValidationError("A user with this email already exists.")
+        return value
+
     class Meta:
         model = User
         fields = ['username', 'email', 'password', 'role', 'full_name', 'phone_number',

@@ -27,16 +27,16 @@ class CVExperienceSerializer(serializers.ModelSerializer):
         }
 
     def to_internal_value(self, data):
-        # تحويل المفاتيح المخصصة للمفاتيح الأصلية في الموديل
+        # تحويل المفاتيح المخصصة للمفاتيح الأصلية في الموديل ومع دعم المفاتيح العادية كبديل
         mapped_data = {
-            'is_current': data.get("I currently work here"),
-            'job_title': data.get("Job Title"),
-            'company': data.get("Company"),
-            'start_date': data.get("Start Date"),
-            'end_date': data.get("End Date"),
-            'description': data.get("Description"),
+            'is_current': data.get("I currently work here", data.get("is_current")),
+            'job_title': data.get("Job Title", data.get("job_title")),
+            'company': data.get("Company", data.get("company")),
+            'start_date': data.get("Start Date", data.get("start_date")),
+            'end_date': data.get("End Date", data.get("end_date")),
+            'description': data.get("Description", data.get("description")),
         }
-        return super().to_internal_value(mapped_data)
+        return super().to_internal_value({k: v for k, v in mapped_data.items() if v is not None})
 
 class CVEducationSerializer(serializers.ModelSerializer):
     school = serializers.CharField(label="School / University")
@@ -58,12 +58,12 @@ class CVEducationSerializer(serializers.ModelSerializer):
 
     def to_internal_value(self, data):
         mapped_data = {
-            'school': data.get("School / University"),
-            'degree': data.get("Degree / Qualification"),
-            'graduation_year': data.get("Year of Graduation"),
-            'description': data.get("Additional Details"),
+            'school': data.get("School / University", data.get("school")),
+            'degree': data.get("Degree / Qualification", data.get("degree")),
+            'graduation_year': data.get("Year of Graduation", data.get("graduation_year")),
+            'description': data.get("Additional Details", data.get("description")),
         }
-        return super().to_internal_value(mapped_data)
+        return super().to_internal_value({k: v for k, v in mapped_data.items() if v is not None})
 
 class CVSerializer(serializers.ModelSerializer):
     # بنغير التسميات للي اليوزر طلبها وبنخليها قابلة للكتابة (Writable Nested)
@@ -78,7 +78,7 @@ class CVSerializer(serializers.ModelSerializer):
             'email_address', 'location', 'portfolio_url', 'professional_summary', 
             'content', 'ats_score', 'is_base', 'Experience', 'Education', 'Skills', 'created_at'
         ]
-        read_only_fields = ['user', 'created_at', 'ats_score']
+        read_only_fields = ['user', 'created_at', 'ats_score', 'job']
 
     def to_representation(self, instance):
         return {
@@ -104,17 +104,17 @@ class CVSerializer(serializers.ModelSerializer):
 
     def to_internal_value(self, data):
         # تحويل الـ Request المتداخل لـ Flat fields عشان الموديل يفهمها
-        personal = data.get("Personal Details", {})
+        personal = data.get("Personal Details", data)
         
         # بننقل البيانات من الـ Nested Dictionary للـ Flat Map
         new_data = data.copy()
-        new_data['full_name'] = personal.get("Full Name", "")
-        new_data['phone_number'] = personal.get("Phone Number", "")
-        new_data['professional_title'] = personal.get("Professional Title", "")
-        new_data['email_address'] = personal.get("Email Address", "")
-        new_data['location'] = personal.get("Location", "")
-        new_data['portfolio_url'] = personal.get("Portfolio / LinkedIn URL", "")
-        new_data['professional_summary'] = personal.get("Professional Summary", "")
+        new_data['full_name'] = personal.get("Full Name", personal.get("full_name", ""))
+        new_data['phone_number'] = personal.get("Phone Number", personal.get("phone_number", ""))
+        new_data['professional_title'] = personal.get("Professional Title", personal.get("professional_title", ""))
+        new_data['email_address'] = personal.get("Email Address", personal.get("email_address", ""))
+        new_data['location'] = personal.get("Location", personal.get("location", ""))
+        new_data['portfolio_url'] = personal.get("Portfolio / LinkedIn URL", personal.get("portfolio_url", ""))
+        new_data['professional_summary'] = personal.get("Professional Summary", personal.get("professional_summary", ""))
         
         # بنظبط الـ Experience و الـ Education لو موجودين
         if "Experience" in data:

@@ -2,11 +2,12 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from .models import MatchResult
-from .serializers import MatchResultSerializer
+from .serializers import MatchResultSerializer, ProposalRequestSerializer
 from .match import get_ai_match, generate_ai_proposal
 from opportunities.models import Job, FreelanceProject
 from concurrent.futures import ThreadPoolExecutor
 from django.db import connection
+from drf_spectacular.utils import extend_schema
 
 # 1. API خاص بمطابقة الوظائف فقط
 class JobMatchView(APIView):
@@ -112,6 +113,10 @@ class ProjectMatchView(APIView):
 class ProposalGeneratorView(APIView):
     permission_classes = [IsAuthenticated]
 
+    @extend_schema(
+        request=ProposalRequestSerializer,
+        responses={200: {"type": "object", "properties": {"proposal": {"type": "string"}}}}
+    )
     def post(self, request):
         user = request.user
         project_id = request.data.get('project_id')

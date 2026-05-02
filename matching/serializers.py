@@ -16,3 +16,6 @@ class MatchResultSerializer(serializers.ModelSerializer):
             'job_details', 'project_details', 'created_at'
         ]
         read_only_fields = ['match_score', 'matched_skills', 'missing_skills', 'ai_tips', 'created_at']
+
+class ProposalRequestSerializer(serializers.Serializer):
+    project_id = serializers.IntegerField(help_text="رقم الـ ID الخاص بالمشروع")

@@ -1,6 +1,7 @@
 from django.urls import path
 from .views import (
-    CVListView, 
+    CVListView,
+    CVDetailView,
     BaseCVCreateView, 
     BaseCVUpdateView,
     JobLinkedCVCreateView, 
@@ -11,6 +12,7 @@ from .views import (
 
 urlpatterns = [
     path('cv/', CVListView.as_view(), name='cv-list'),
+    path('cv/<int:pk>/', CVDetailView.as_view(), name='cv-detail'),
     path('cv/base/', BaseCVCreateView.as_view(), name='cv-base-create'),
     path('cv/base/update/', BaseCVUpdateView.as_view(), name='cv-base-update'),
     path('cv/job/<int:job_id>/', JobLinkedCVCreateView.as_view(), name='cv-job-linked-create'),

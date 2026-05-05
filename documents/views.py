@@ -20,6 +20,15 @@ class CVListView(generics.ListAPIView):
         return CV.objects.filter(user=self.request.user)\
             .prefetch_related('experiences', 'education_history', 'skills')
 
+class CVDetailView(generics.RetrieveUpdateDestroyAPIView):
+    """Retrieve, update or delete a specific CV by ID. Only allows access to the user's own CVs."""
+    serializer_class = CVSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return CV.objects.filter(user=self.request.user)\
+            .prefetch_related('experiences', 'education_history', 'skills')
+
 class BaseCVCreateView(generics.CreateAPIView):
     queryset = CV.objects.all()
     serializer_class = CVSerializer

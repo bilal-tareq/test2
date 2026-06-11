@@ -19,15 +19,15 @@ class JobListView(generics.ListAPIView):
     def get_queryset(self):
         user = self.request.user
         if user and user.is_authenticated:
-            return Job.objects.prefetch_related(
+            return Job.objects.filter(matchresult__user=user).prefetch_related(
                 'required_skills',
                 Prefetch(
                     'matchresult_set',
                     queryset=MatchResult.objects.filter(user=user),
                     to_attr='user_matches'
                 )
-            ).all().order_by('-id')
-        return Job.objects.prefetch_related('required_skills').all().order_by('-id')
+            ).distinct().order_by('-id')
+        return Job.objects.none()
 
 class ProjectListView(generics.ListAPIView):
     serializer_class = ProjectSerializer
@@ -36,15 +36,15 @@ class ProjectListView(generics.ListAPIView):
     def get_queryset(self):
         user = self.request.user
         if user and user.is_authenticated:
-            return FreelanceProject.objects.prefetch_related(
+            return FreelanceProject.objects.filter(matchresult__user=user).prefetch_related(
                 'required_skills',
                 Prefetch(
                     'matchresult_set',
                     queryset=MatchResult.objects.filter(user=user),
                     to_attr='user_matches'
                 )
-            ).all().order_by('-id')
-        return FreelanceProject.objects.prefetch_related('required_skills').all().order_by('-id')
+            ).distinct().order_by('-id')
+        return FreelanceProject.objects.none()
 
 
 
